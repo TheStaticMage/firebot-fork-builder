@@ -1,0 +1,281 @@
+diff --git a/.gitignore b/.gitignore
+index 159847cc9..76d6fcd1e 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -86,4 +86,7 @@ secrets.json
+ .vs/
+ 
+ .turbo/
+-.next/
+\ No newline at end of file
++.next/
++
++# Fork
++/src/shared/patch-version.js
+diff --git a/src/backend/app-management/electron/window-management.js b/src/backend/app-management/electron/window-management.js
+index e300c43cc..7b0a1efa5 100644
+--- a/src/backend/app-management/electron/window-management.js
++++ b/src/backend/app-management/electron/window-management.js
+@@ -342,20 +342,6 @@ async function createAppMenu() {
+                     },
+                     icon: await createIconImage("../../../gui/images/icons/mdi/source-branch.png")
+                 },
+-                {
+-                    label: 'Report a Bug',
+-                    click: () => {
+-                        shell.openExternal("https://github.com/crowbartools/Firebot/issues/new?assignees=&template=bug_report.yml");
+-                    },
+-                    icon: await createIconImage("../../../gui/images/icons/mdi/bug-outline.png")
+-                },
+-                {
+-                    label: 'Request a Feature',
+-                    click: () => {
+-                        shell.openExternal("https://github.com/crowbartools/Firebot/issues/new?assignees=&template=feature_request.md");
+-                    },
+-                    icon: await createIconImage("../../../gui/images/icons/mdi/star-circle-outline.png")
+-                },
+                 {
+                     type: 'separator'
+                 },
+diff --git a/src/gui/app/app-main.js b/src/gui/app/app-main.js
+index 5a98a830b..25a8784ab 100644
+--- a/src/gui/app/app-main.js
++++ b/src/gui/app/app-main.js
+@@ -453,8 +453,8 @@
+          */
+ 
+         // Get app version and change titlebar.
+-        const appVersion = firebotAppDetails.version;
+-        $scope.appTitle = `Firebot v${appVersion}`;
++        const appVersion = require("../../shared/patch-version.js");
++        $scope.appTitle = `Firebot v${appVersion} [TheStaticMage fork]`;
+ 
+         const url = require("url");
+         $scope.customFontCssPath = url.pathToFileURL(fontManager.getFontCssPath());
+@@ -721,4 +721,4 @@
+         };
+     });
+ 
+-}(angular));
+\ No newline at end of file
++}(angular));
+diff --git a/src/gui/app/directives/modals/misc/aboutModal.js b/src/gui/app/directives/modals/misc/aboutModal.js
+index 406d2b410..d55be783c 100644
+--- a/src/gui/app/directives/modals/misc/aboutModal.js
++++ b/src/gui/app/directives/modals/misc/aboutModal.js
+@@ -11,26 +11,14 @@
+                 #aboutModalBody > section:not(:first-child) {
+                     margin-top: 1.5em;
+                 }
+-
+-                #aboutModalSocialButtons > a:not(:first-child) {
+-                    margin-left: 1em;
+-                }
+             </style>
+             <div class="modal-header" style="text-align: center;">
+                 <button type="button" id="aboutModalHeaderDismissButton" class="close" ng-click="$ctrl.dismiss()"><span>&times;</span></button>
+             </div>
+             <div id="aboutModalBody" class="modal-body" style="text-align: center; margin-top: -50px;">
+                 <section>
+-                    <a href ng-click="$root.openLinkExternally('https://firebot.app')"><img style="width: 160px; height: 160px" src="../images/logo_transparent.png"></a>
+-                </section>
+-
+-                <section>
+-                    <h5><b>Connect With Us</b></h5>
+-                    <div id="aboutModalSocialButtons" style="font-size: 28px;">
+-                        <a href ng-click="$root.openLinkExternally('https://discord.gg/crowbartools-372817064034959370')" title="Discord"><i class="fab fa-discord"></i></a>
+-                        <a href ng-click="$root.openLinkExternally('https://bsky.app/profile/firebot.app')" title="Bluesky"><i class="fas fa-cloud"></i></a>
+-                        <a href ng-click="$root.openLinkExternally('https://github.com/crowbartools/Firebot')" title="GitHub"><i class="fab fa-github"></i></a>
+-                    </div>
++                    <p>This is an unsupported and unmaintained fork of Firebot built by <a href ng-click="$root.openLinkExternally('https://github.com/TheStaticMage/firebot-fork-builder')">TheStaticMage</a>.</p>
++                    <p>Get the actual version of Firebot from <a href ng-click="$root.openLinkExternally('https://firebot.app')">firebot.app</a></p>
+                 </section>
+ 
+                 <section>
+@@ -51,9 +39,13 @@
+ 
+                 <section>
+                     <h5><b>Support</b></h5>
++                    <p>This fork is unsupported and unmaintained. Only the <a href ng-click="$root.openLinkExternally('https://firebot.app')">original Firebot</a> is actively maintained and supported. Please do not ask for help with this fork in the Firebot discord or GitHub.</p>
++                </section>
++
++                <section>
++                    <h5><b>Support Firebot</b></h5>
++                    <p>Support firebot development by visiting the links below:</p>
+                     <p>
+-                        <a href ng-click="$root.openLinkExternally('https://github.com/crowbartools/Firebot/issues/new?assignees=&template=bug_report.yml')">Report a Bug</a> |
+-                        <a href ng-click="$root.openLinkExternally('https://github.com/crowbartools/Firebot/issues/new?assignees=&template=feature_request.md')">Request a Feature</a> |
+                         <a href ng-click="$root.openLinkExternally('https://opencollective.com/crowbartools')">Donate</a> |
+                         <a href ng-click="$root.openLinkExternally('https://crowbar-tools.myspreadshop.com')">Merch Store</a> |
+                         <a href ng-click="$root.openLinkExternally('https://firebot.app/testimonial-submission')">Submit a Testimonial</a>
+@@ -68,9 +60,17 @@
+         },
+         controller: function() {
+             const $ctrl = this;
++            // Load baked-in patch version
++            let patchVersion = "";
++            try {
++                patchVersion = require("../../shared/patch-version.js");
++            } catch (e) {
++                console.error("Failed to load patch version:", e);
++                patchVersion = "unknown";
++            }
+ 
+             $ctrl.$onInit = function() {
+-                $ctrl.version = firebotAppDetails.version;
++                $ctrl.version = patchVersion;
+                 $ctrl.osType = firebotAppDetails.os.type;
+                 $ctrl.osVersion = firebotAppDetails.os.release;
+             };
+diff --git a/src/gui/splashscreen/splash.html b/src/gui/splashscreen/splash.html
+index db87fd6aa..effcb60cc 100644
+--- a/src/gui/splashscreen/splash.html
++++ b/src/gui/splashscreen/splash.html
+@@ -9,23 +9,23 @@
+         html, body {
+             height: 100%;
+         }
+-    
++
+         body {
+             margin: 0;
+             font-family: "Open Sans";
+             color: #fff;
+             text-align: center;
+         }
+-    
++
+         .splash-wrapper {
+             width: 100%;
+             height: 100%;
+             display:flex;
+             justify-content: center;
+             align-items: center;
+-            user-select: none; 
++            user-select: none;
+         }
+-    
++
+         .splash-box {
+             display:flex;
+             justify-content: center;
+@@ -38,14 +38,14 @@
+             box-shadow: 0px 5px 10px -7px rgba(0,0,0,0.86);
+             min-width: 300px;
+         }
+-    
++
+         .logo-wrapper {
+             width: 185px;
+             display:flex;
+             justify-content: center;
+             align-items: center;
+         }
+-    
++
+         h1 {
+             font-family: "Quicksand";
+             font-weight: 100;
+@@ -53,7 +53,7 @@
+             color: #ebb11f;
+             margin: 0;
+         }
+-    
++
+         .status-message-container {
+             display: flex;
+             justify-content: end;
+@@ -61,7 +61,7 @@
+             min-height: 40px;
+             max-height: 40px;
+         }
+-    
++
+         #status-message {
+             opacity: 0.5;
+             overflow-y: hidden;
+@@ -69,44 +69,44 @@
+             min-width: 250px;
+             max-width: 250px;
+         }
+-    
++
+         .spinner {
+             width: 70px;
+             margin: 30px auto;
+             text-align: center;
+         }
+-    
++
+         .spinner > div {
+             width: 18px;
+             height: 18px;
+             background-color: #FFCB05;
+-        
++
+             border-radius: 100%;
+             display: inline-block;
+             -webkit-animation: sk-bouncedelay 1.4s infinite ease-in-out both;
+             animation: sk-bouncedelay 1.4s infinite ease-in-out both;
+         }
+-    
++
+         .spinner .bounce1 {
+             -webkit-animation-delay: -0.32s;
+             animation-delay: -0.32s;
+         }
+-    
++
+         .spinner .bounce2 {
+             -webkit-animation-delay: -0.16s;
+             animation-delay: -0.16s;
+         }
+-    
++
+         @-webkit-keyframes sk-bouncedelay {
+             0%, 80%, 100% { -webkit-transform: scale(0) }
+             40% { -webkit-transform: scale(1.0) }
+         }
+-    
++
+         @keyframes sk-bouncedelay {
+-            0%, 80%, 100% { 
++            0%, 80%, 100% {
+                 -webkit-transform: scale(0);
+                 transform: scale(0);
+-            } 40% { 
++            } 40% {
+                 -webkit-transform: scale(1.0);
+                 transform: scale(1.0);
+             }
+@@ -117,10 +117,7 @@
+ <body>
+     <div class="splash-wrapper">
+         <div id="box" class="splash-box">
+-            <div class="logo-wrapper">
+-                <img style="width: 165px;" src="../images/logo_transparent_2.png" draggable="false">
+-            </div>
+-            <h1>Firebot</h1>
++            <h1>Firebot (Fork)</h1>
+             <div class="spinner">
+                 <div class="bounce1"></div>
+                 <div class="bounce2"></div>
+@@ -129,6 +126,11 @@
+             <div class="status-message-container">
+                 <div id="status-message">Loading Firebot...</div>
+             </div>
++            <div style="font-size: 12px; color: #fff;">
++                <p>This fork of Firebot is <strong>not officially maintained</strong>.</p>
++                <p style="color: #ff0;">Do not ask for support for this from the Firebot developers.</p>
++                <p>Get the actual version of Firebot from <a href="https://firebot.app" target="_blank" style="color: #f00;">firebot.app</a></p>
++            </div>
+         </div>
+     </div>
+     <script>
+@@ -137,4 +139,4 @@
+         });
+     </script>
+ </body>
+-</html>
+\ No newline at end of file
++</html>
