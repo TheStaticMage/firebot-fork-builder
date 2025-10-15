@@ -30,12 +30,6 @@ This incorporates an optional 250 ms delay to messages that appear in the chat f
 
 This is for my son. He wants people to "troll" him by playing game sound effects while he's streaming. He uses the "Hide Message In Chat Feed" effect ([that I wrote](https://github.com/crowbartools/Firebot/pull/3189)) to hide the commands from his chat feed so he doesn't know if the sounds are real or chat-generated. However, sometimes the command "flashes" in the chat feed before it gets hidden, and when that happens, he knows someone is trolling him and that spoils the fun. The slight delay prevents that from happening. Enable this option via the settings under the chat feed.
 
-### Raid quick action and modal
-
-Firebot issue: <https://github.com/crowbartools/Firebot/issues/3194> (not responded to by developers)
-
-This adds a "Raid" quick action which has a modal to select a channel to raid from the same category you're in, the channels you follow, or a username you type. I use this all the time on my own stream and it greatly simplifies things -- no more remembering a random string of numbers of where the underscores in someone's Twitch name are. This is accessed via the "Rocket" icon in the quick actions within the Firebot dashboard.
-
 ### Twitch API call patches
 
 Firebot issue: <https://github.com/crowbartools/Firebot/issues/3265> (rejected by developers)
