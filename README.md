@@ -30,21 +30,27 @@ This incorporates an optional 250 ms delay to messages that appear in the chat f
 
 This is for my son. He wants people to "troll" him by playing game sound effects while he's streaming. He uses the "Hide Message In Chat Feed" effect ([that I wrote](https://github.com/crowbartools/Firebot/pull/3189)) to hide the commands from his chat feed so he doesn't know if the sounds are real or chat-generated. However, sometimes the command "flashes" in the chat feed before it gets hidden, and when that happens, he knows someone is trolling him and that spoils the fun. The slight delay prevents that from happening. Enable this option via the settings under the chat feed.
 
+### Hide channel point redemptions in chat feed (option)
+
+Add an option to the Firebot dashboard to suppress channel point redemption messages in the Firebot chat feed.
+
+### More elegant "hide message" in chat feed
+
+Respect the alternating background colors when a chat message is hidden by adding `hideHiddenMessages` to the iterator instead of hiding/showing the message element itself. 
+
 ### Twitch API call patches
 
 Firebot issue: <https://github.com/crowbartools/Firebot/issues/3265> (rejected by developers)
 
 My [Kick integration](https://github.com/TheStaticMage/firebot-mage-kick-integration) can cause issues with certain parts of Firebot that assume all users are from Twitch. One of these conflicts can occur when a non-Twitch user is added to a custom role. Firebot passes all of the user IDs to Twitch, and the API call fails if there is any invalid user ID in that list. This is a behind-the-scenes change that you shouldn't ever notice.
 
-### Exposing more internals to scripts
+### Logging improvements
 
-Firebot issue: <https://github.com/crowbartools/Firebot/issues/3245> (unclear, but likely deferred for future development)
+Firebot issue: <https://github.com/crowbartools/Firebot/issues/3324>
 
-To avoid the need to rewrite large parts of Firebot in my custom scripts, I am exposing additional internals to the scripting interface. For the time being I'm trying to keep this limited to the things I need for personal, unreleased scripts. However, depending on future needs, this may eventually end up forcing users of certain of my scripts into this fork.
-
-### Miscellaneous unresolved issues
-
-- Fix for: [Firebot hangs in an infinite loop when a preset effect list calls itself](https://github.com/crowbartools/Firebot/issues/3285)
+Two improvements:
+- Print stack trace when logging an error
+- Print name of failing effect when failing to parse effect
 
 ## Other Differences
 
